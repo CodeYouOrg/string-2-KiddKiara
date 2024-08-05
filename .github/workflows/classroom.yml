@@ -1,0 +1,47 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Grading
+      id: grading
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Grading
+        setup-command: ''
+        command: python3 string2.py
+        input: ''
+        expected-output: |-
+          verbing
+           OK  got: 'hailing' expected: 'hailing'
+           OK  got: 'swimingly' expected: 'swimingly'
+           OK  got: 'do' expected: 'do'
+
+          not_bad
+           OK  got: 'This movie is good' expected: 'This movie is good'
+           OK  got: 'This dinner is good!' expected: 'This dinner is good!'
+           OK  got: 'This tea is not hot' expected: 'This tea is not hot'
+           OK  got: "It's bad yet not" expected: "It's bad yet not"
+
+          front_back
+           OK  got: 'abxcdy' expected: 'abxcdy'
+           OK  got: 'abcxydez' expected: 'abcxydez'
+           OK  got: 'KitDontenut' expected: 'KitDontenut'
+        comparison-method: contains
+        timeout: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        GRADING_RESULTS: "${{steps.grading.outputs.result}}"
+      with:
+        runners: grading
